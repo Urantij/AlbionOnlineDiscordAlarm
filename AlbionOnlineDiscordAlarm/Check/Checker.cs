@@ -10,24 +10,24 @@ namespace AlbionAlarmDiscord.Check;
 
 public class Checker
 {
-    const string url = "https://api.albionstatus.com/current/";
-
     private readonly ILogger _logger;
 
     private readonly HttpClient httpClient;
+    private readonly string askUrl;
 
-    public Checker(ILoggerFactory loggerFactory)
+    public Checker(string askUrl, ILoggerFactory loggerFactory)
     {
         _logger = loggerFactory.CreateLogger(this.GetType());
 
         httpClient = new();
+        this.askUrl = askUrl;
     }
 
     public async Task<StatusCheck?> CheckAsync()
     {
         try
         {
-            HttpResponseMessage result = await httpClient.GetAsync(url);
+            HttpResponseMessage result = await httpClient.GetAsync(askUrl);
 
             string content = await result.Content.ReadAsStringAsync();
 

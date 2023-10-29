@@ -7,6 +7,7 @@ namespace AlbionAlarmDiscord;
 
 class Program
 {
+    const string defaultAskUrl = "https://serverstatus.albiononline.com/";
     const string configPath = "config.ini";
 
     static async Task Main(string[] appArgs)
@@ -37,8 +38,10 @@ class Program
         string botToken = configLines["BotToken"];
         ulong channelId = ulong.Parse(configLines["ChannelId"]);
 
+        string askUrl = configLines.GetValueOrDefault("Url") ?? defaultAskUrl;
+
         DiscordBot bot = new(botToken, channelId, loggerFactory);
-        Checker checker = new(loggerFactory);
+        Checker checker = new(askUrl, loggerFactory);
 
         Worker worker = new(bot, checker, loggerFactory);
 
