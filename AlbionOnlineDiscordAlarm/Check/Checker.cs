@@ -31,7 +31,7 @@ public class Checker
 
             string content = await result.Content.ReadAsStringAsync();
 
-            return JsonConvert.DeserializeObject<StatusCheck[]>(content)![0];
+            return JsonConvert.DeserializeObject<StatusCheck>(content);
         }
         catch (Exception e)
         {
