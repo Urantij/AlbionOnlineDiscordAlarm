@@ -7,7 +7,7 @@
             "type": "process",
             "args": [
                 "build",
-                "${workspaceFolder}/AlbionAlarmDiscord/AlbionAlarmDiscord.csproj",
+                "${workspaceFolder}/AlbionOnlineDiscordAlarm/AlbionOnlineDiscordAlarm.csproj",
                 "/property:GenerateFullPaths=true",
                 "/consoleloggerparameters:NoSummary"
             ],
@@ -19,7 +19,7 @@
             "type": "process",
             "args": [
                 "publish",
-                "${workspaceFolder}/AlbionAlarmDiscord/AlbionAlarmDiscord.csproj",
+                "${workspaceFolder}/AlbionOnlineDiscordAlarm/AlbionOnlineDiscordAlarm.csproj",
                 "/property:GenerateFullPaths=true",
                 "/consoleloggerparameters:NoSummary"
             ],
@@ -33,7 +33,7 @@
                 "watch",
                 "run",
                 "--project",
-                "${workspaceFolder}/AlbionAlarmDiscord/AlbionAlarmDiscord.csproj"
+                "${workspaceFolder}/AlbionOnlineDiscordAlarm/AlbionOnlineDiscordAlarm.csproj"
             ],
             "problemMatcher": "$msCompile"
         }
