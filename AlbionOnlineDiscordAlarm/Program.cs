@@ -30,7 +30,7 @@ class Program
         .Where(l => !string.IsNullOrEmpty(l))
         .Select(line =>
         {
-            string[] split = line.Split('=');
+            string[] split = line.Split('=', 2);
 
             return (split[0], split[1]);
         }).ToDictionary(key => key.Item1, value => value.Item2);
