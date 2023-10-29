@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using AlbionAlarmDiscord.Check;
+using AlbionOnlineDiscordAlarm.Check;
 using Discord.Webhook;
 using Microsoft.Extensions.Logging;
 
@@ -69,23 +70,33 @@ public class Worker
 
             if (check?.Status == null)
             {
+                _logger.LogWarning("Нет статуса.");
                 await Task.Delay(badRequestWaitTime);
                 continue;
             }
 
+            Status status = check.Status.ToLowerInvariant() switch
+            {
+                "online" => Status.Online,
+                "offline" or "500" => Status.Offline,
+                "starting" => Status.Starting,
+
+                _ => Status.Unknown
+            };
+
             if (check.Status != lastCheck?.Status)
             {
-                if (check.Status.Equals("online", StringComparison.OrdinalIgnoreCase))
+                if (status == Status.Online)
                 {
                     _logger.LogInformation("[{time}] онлайн.", DateTime.UtcNow.ToString("HH:mm:ss"));
                     await NotifyAsync("Сервер онлайн!");
                 }
-                else if (check.Status.Equals("offline", StringComparison.OrdinalIgnoreCase))
+                else if (status == Status.Offline)
                 {
                     _logger.LogInformation("[{time}] офлайн.", DateTime.UtcNow.ToString("HH:mm:ss"));
                     await NotifyAsync("Сервер офлайн!");
                 }
-                else if (check.Status.Equals("starting", StringComparison.OrdinalIgnoreCase))
+                else if (status == Status.Starting)
                 {
                     _logger.LogInformation("[{time}] запускается.", DateTime.UtcNow.ToString("HH:mm:ss"));
                     await NotifyAsync("Сервер запускается!");
@@ -94,15 +105,15 @@ public class Worker
 
             lastCheck = check;
 
-            if (check.Status.Equals("online", StringComparison.OrdinalIgnoreCase))
+            if (status == Status.Online)
             {
                 await Task.Delay(preOfflineWaitTime);
             }
-            else if (check.Status.Equals("offline", StringComparison.OrdinalIgnoreCase))
+            else if (status == Status.Offline)
             {
                 await Task.Delay(preStartingWaitTime);
             }
-            else if (check.Status.Equals("starting", StringComparison.OrdinalIgnoreCase))
+            else if (status == Status.Starting)
             {
                 await Task.Delay(preOnlineWaitTime);
             }
