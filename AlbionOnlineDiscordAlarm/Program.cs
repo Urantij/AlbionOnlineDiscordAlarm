@@ -15,7 +15,7 @@ class Program
     {
         Console.WriteLine("Hello World!");
 
-        ILoggerFactory loggerFactory = LoggerFactory.Create(b => b.AddSimpleConsole(c => c.TimestampFormat = "HH:mm:ss"));
+        ILoggerFactory loggerFactory = LoggerFactory.Create(b => b.AddSimpleConsole(c => c.TimestampFormat = "HH:mm:ss "));
         ILogger logger = loggerFactory.CreateLogger("Main");
 
         if (!File.Exists(configPath))
