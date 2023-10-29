@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using AlbionAlarmDiscord.Check;
+using Discord.Webhook;
 using Microsoft.Extensions.Logging;
 
 namespace AlbionAlarmDiscord;
@@ -28,29 +29,34 @@ public class Worker
 
     private readonly ILogger _logger;
 
-    private readonly DiscordBot bot;
+    private readonly DiscordBot? bot;
+    private readonly DiscordWebhookClient? discordWebhookClient;
     private readonly Checker checker;
 
-    public Worker(DiscordBot bot, Checker checker, ILoggerFactory loggerFactory)
+    public Worker(DiscordBot? bot, DiscordWebhookClient? discordWebhookClient, Checker checker, ILoggerFactory loggerFactory)
     {
         _logger = loggerFactory.CreateLogger(this.GetType());
 
         this.bot = bot;
+        this.discordWebhookClient = discordWebhookClient;
         this.checker = checker;
     }
 
     public async Task StartAsync()
     {
-        bot.BotReady += BotReady;
+        if (bot != null)
+        {
+            bot.BotReady += BotReady;
 
-        await bot.ConnectAsync();
+            await bot.ConnectAsync();
+        }
+
+        _ = Task.Run(EndlessLoop);
     }
 
     private void BotReady()
     {
-        bot.BotReady -= BotReady;
-
-        Task.Run(EndlessLoop);
+        bot!.BotReady -= BotReady;
     }
 
     private async Task EndlessLoop()
@@ -72,17 +78,17 @@ public class Worker
                 if (check.Status.Equals("online", StringComparison.OrdinalIgnoreCase))
                 {
                     _logger.LogInformation("[{time}] онлайн.", DateTime.UtcNow.ToString("HH:mm:ss"));
-                    await bot.SendAlarmAsync("Сервер онлайн!");
+                    await NotifyAsync("Сервер онлайн!");
                 }
                 else if (check.Status.Equals("offline", StringComparison.OrdinalIgnoreCase))
                 {
                     _logger.LogInformation("[{time}] офлайн.", DateTime.UtcNow.ToString("HH:mm:ss"));
-                    await bot.SendAlarmAsync("Сервер офлайн!");
+                    await NotifyAsync("Сервер офлайн!");
                 }
                 else if (check.Status.Equals("starting", StringComparison.OrdinalIgnoreCase))
                 {
                     _logger.LogInformation("[{time}] запускается.", DateTime.UtcNow.ToString("HH:mm:ss"));
-                    await bot.SendAlarmAsync("Сервер запускается!");
+                    await NotifyAsync("Сервер запускается!");
                 }
             }
 
@@ -107,5 +113,22 @@ public class Worker
                 await Task.Delay(badRequestWaitTime);
             }
         }
+    }
+
+    private Task NotifyAsync(string text)
+    {
+        List<Task> tasks = new();
+
+        if (discordWebhookClient != null)
+        {
+            tasks.Add(discordWebhookClient.SendMessageAsync(text));
+        }
+
+        if (bot != null && bot.Connected)
+        {
+            tasks.Add(bot.SendAlarmAsync(text));
+        }
+
+        return Task.WhenAll(tasks);
     }
 }

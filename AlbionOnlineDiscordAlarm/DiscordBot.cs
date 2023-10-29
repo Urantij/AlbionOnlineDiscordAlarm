@@ -20,6 +20,8 @@ public class DiscordBot
     private SocketGuild? guild;
     private SocketTextChannel? textChannel;
 
+    public bool Connected => client.ConnectionState == ConnectionState.Connected;
+
     public event Action? BotReady;
 
     public DiscordBot(string token, ulong channelId, ILoggerFactory loggerFactory)

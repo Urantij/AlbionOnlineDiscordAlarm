@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 using AlbionAlarmDiscord.Check;
+using Discord.Webhook;
 using Microsoft.Extensions.Logging;
 
 namespace AlbionAlarmDiscord;
@@ -35,15 +36,28 @@ class Program
             return (split[0], split[1]);
         }).ToDictionary(key => key.Item1, value => value.Item2);
 
-        string botToken = configLines["BotToken"];
-        ulong channelId = ulong.Parse(configLines["ChannelId"]);
+        DiscordBot? bot = null;
+        if (configLines.TryGetValue("BotToken", out string? botToken))
+        {
+            logger.LogInformation("Используем дискорд бота.");
+
+            ulong channelId = ulong.Parse(configLines["ChannelId"]);
+
+            bot = new(botToken, channelId, loggerFactory);
+        }
+
+        DiscordWebhookClient? discordWebhookClient = null;
+        if (configLines.TryGetValue("WebhookUrl", out string? webhookUrl))
+        {
+            logger.LogInformation("Используем дискорд вебхук.");
+
+            discordWebhookClient = new(webhookUrl);
+        }
 
         string askUrl = configLines.GetValueOrDefault("Url") ?? defaultAskUrl;
-
-        DiscordBot bot = new(botToken, channelId, loggerFactory);
         Checker checker = new(askUrl, loggerFactory);
 
-        Worker worker = new(bot, checker, loggerFactory);
+        Worker worker = new(bot, discordWebhookClient, checker, loggerFactory);
 
         await worker.StartAsync();
 
