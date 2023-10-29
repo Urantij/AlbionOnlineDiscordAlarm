@@ -61,25 +61,25 @@ public class Worker
         {
             StatusCheck? check = await checker.CheckAsync();
 
-            if (check?.CurrentStatus == null)
+            if (check?.Status == null)
             {
                 await Task.Delay(badRequestWaitTime);
                 continue;
             }
 
-            if (check.CurrentStatus != lastCheck?.CurrentStatus)
+            if (check.Status != lastCheck?.Status)
             {
-                if (check.CurrentStatus.Equals("online", StringComparison.OrdinalIgnoreCase))
+                if (check.Status.Equals("online", StringComparison.OrdinalIgnoreCase))
                 {
                     _logger.LogInformation("[{time}] онлайн.", DateTime.UtcNow.ToString("HH:mm:ss"));
                     await bot.SendAlarmAsync("Сервер онлайн!");
                 }
-                else if (check.CurrentStatus.Equals("offline", StringComparison.OrdinalIgnoreCase))
+                else if (check.Status.Equals("offline", StringComparison.OrdinalIgnoreCase))
                 {
                     _logger.LogInformation("[{time}] офлайн.", DateTime.UtcNow.ToString("HH:mm:ss"));
                     await bot.SendAlarmAsync("Сервер офлайн!");
                 }
-                else if (check.CurrentStatus.Equals("starting", StringComparison.OrdinalIgnoreCase))
+                else if (check.Status.Equals("starting", StringComparison.OrdinalIgnoreCase))
                 {
                     _logger.LogInformation("[{time}] запускается.", DateTime.UtcNow.ToString("HH:mm:ss"));
                     await bot.SendAlarmAsync("Сервер запускается!");
@@ -88,21 +88,21 @@ public class Worker
 
             lastCheck = check;
 
-            if (check.CurrentStatus.Equals("online", StringComparison.OrdinalIgnoreCase))
+            if (check.Status.Equals("online", StringComparison.OrdinalIgnoreCase))
             {
                 await Task.Delay(preOfflineWaitTime);
             }
-            else if (check.CurrentStatus.Equals("offline", StringComparison.OrdinalIgnoreCase))
+            else if (check.Status.Equals("offline", StringComparison.OrdinalIgnoreCase))
             {
                 await Task.Delay(preStartingWaitTime);
             }
-            else if (check.CurrentStatus.Equals("starting", StringComparison.OrdinalIgnoreCase))
+            else if (check.Status.Equals("starting", StringComparison.OrdinalIgnoreCase))
             {
                 await Task.Delay(preOnlineWaitTime);
             }
             else
             {
-                _logger.LogError("Неизвестный статус в сообщении. {status} ({message})", check.CurrentStatus, check.Message);
+                _logger.LogError("Неизвестный статус в сообщении. {status} ({message})", check.Status, check.Message);
 
                 await Task.Delay(badRequestWaitTime);
             }

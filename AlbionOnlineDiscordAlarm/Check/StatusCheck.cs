@@ -4,20 +4,14 @@ namespace AlbionAlarmDiscord.Check;
 
 public class StatusCheck
 {
-    [JsonProperty("created_at")]
-    public DateTimeOffset CreatedAt { get; set; }
-    [JsonProperty("current_status")]
-    public string CurrentStatus { get; set; }
+    [JsonProperty("status")]
+    public string Status { get; set; }
     [JsonProperty("message")]
     public string Message { get; set; }
-    [JsonProperty("comment")]
-    public string Comment { get; set; }
 
-    public StatusCheck(DateTimeOffset createdAt, string currentStatus, string message, string comment)
+    public StatusCheck(string status, string message)
     {
-        CreatedAt = createdAt;
-        CurrentStatus = currentStatus;
+        Status = status;
         Message = message;
-        Comment = comment;
     }
 }
