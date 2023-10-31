@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 
-namespace AlbionAlarmDiscord.Check;
+namespace AlbionOnlineDiscordAlarm.Check;
 
 public class Checker
 {

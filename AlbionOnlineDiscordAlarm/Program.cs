@@ -1,11 +1,10 @@
 ﻿using System;
 using System.Threading.Tasks;
-using AlbionAlarmDiscord.Check;
-using AlbionOnlineDiscordAlarm;
+using AlbionOnlineDiscordAlarm.Check;
 using Discord.Webhook;
 using Microsoft.Extensions.Logging;
 
-namespace AlbionAlarmDiscord;
+namespace AlbionOnlineDiscordAlarm;
 
 class Program
 {

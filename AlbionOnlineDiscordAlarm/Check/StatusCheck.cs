@@ -1,6 +1,6 @@
 using Newtonsoft.Json;
 
-namespace AlbionAlarmDiscord.Check;
+namespace AlbionOnlineDiscordAlarm.Check;
 
 public class StatusCheck
 {
