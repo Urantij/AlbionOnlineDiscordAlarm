@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using AlbionAlarmDiscord.Check;
+using AlbionOnlineDiscordAlarm;
 using AlbionOnlineDiscordAlarm.Check;
 using Discord.Webhook;
 using Microsoft.Extensions.Logging;
@@ -33,14 +34,16 @@ public class Worker
     private readonly DiscordBot? bot;
     private readonly DiscordWebhookClient? discordWebhookClient;
     private readonly Checker checker;
+    private readonly Lines lines;
 
-    public Worker(DiscordBot? bot, DiscordWebhookClient? discordWebhookClient, Checker checker, ILoggerFactory loggerFactory)
+    public Worker(DiscordBot? bot, DiscordWebhookClient? discordWebhookClient, Checker checker, Lines lines, ILoggerFactory loggerFactory)
     {
         _logger = loggerFactory.CreateLogger(this.GetType());
 
         this.bot = bot;
         this.discordWebhookClient = discordWebhookClient;
         this.checker = checker;
+        this.lines = lines;
     }
 
     public async Task StartAsync()
@@ -99,21 +102,21 @@ public class Worker
                 if (status == Status.Online)
                 {
                     _logger.LogInformation("Онлайн.");
-                    await NotifyAsync("Сервер онлайн!");
+                    await NotifyAsync(lines.OnlineText);
 
                     await Task.Delay(preOfflineWaitTime);
                 }
                 else if (status == Status.Offline)
                 {
                     _logger.LogInformation("Офлайн.");
-                    await NotifyAsync("Сервер офлайн!");
+                    await NotifyAsync(lines.OfflineText);
 
                     await Task.Delay(preStartingWaitTime);
                 }
                 else if (status == Status.Starting)
                 {
                     _logger.LogInformation("Запускается.");
-                    await NotifyAsync("Сервер запускается!");
+                    await NotifyAsync(lines.StartingText);
 
                     await Task.Delay(preOnlineWaitTime);
                 }

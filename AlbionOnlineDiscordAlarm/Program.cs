@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 using AlbionAlarmDiscord.Check;
+using AlbionOnlineDiscordAlarm;
 using Discord.Webhook;
 using Microsoft.Extensions.Logging;
 
@@ -57,7 +58,14 @@ class Program
         string askUrl = configLines.GetValueOrDefault("Url") ?? defaultAskUrl;
         Checker checker = new(askUrl, loggerFactory);
 
-        Worker worker = new(bot, discordWebhookClient, checker, loggerFactory);
+        Lines lines = new()
+        {
+            OnlineText = configLines.GetValueOrDefault("OnlineText") ?? "Сервер онлайн!",
+            OfflineText = configLines.GetValueOrDefault("OfflineText") ?? "Сервер офлайн!",
+            StartingText = configLines.GetValueOrDefault("StartingText") ?? "Сервер запускается!",
+        };
+
+        Worker worker = new(bot, discordWebhookClient, checker, lines, loggerFactory);
 
         await worker.StartAsync();
 
