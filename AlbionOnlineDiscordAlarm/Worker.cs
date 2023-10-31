@@ -62,7 +62,7 @@ public class Worker
 
     private async Task EndlessLoop()
     {
-        StatusCheck? lastCheck = null;
+        Status? lastStatus = null;
 
         while (true)
         {
@@ -84,44 +84,39 @@ public class Worker
                 _ => Status.Unknown
             };
 
-            if (check.Status != lastCheck?.Status)
-            {
-                if (status == Status.Online)
-                {
-                    _logger.LogInformation("[{time}] онлайн.", DateTime.UtcNow.ToString("HH:mm:ss"));
-                    await NotifyAsync("Сервер онлайн!");
-                }
-                else if (status == Status.Offline)
-                {
-                    _logger.LogInformation("[{time}] офлайн.", DateTime.UtcNow.ToString("HH:mm:ss"));
-                    await NotifyAsync("Сервер офлайн!");
-                }
-                else if (status == Status.Starting)
-                {
-                    _logger.LogInformation("[{time}] запускается.", DateTime.UtcNow.ToString("HH:mm:ss"));
-                    await NotifyAsync("Сервер запускается!");
-                }
-            }
-
-            lastCheck = check;
-
-            if (status == Status.Online)
-            {
-                await Task.Delay(preOfflineWaitTime);
-            }
-            else if (status == Status.Offline)
-            {
-                await Task.Delay(preStartingWaitTime);
-            }
-            else if (status == Status.Starting)
-            {
-                await Task.Delay(preOnlineWaitTime);
-            }
-            else
+            if (status == Status.Unknown)
             {
                 _logger.LogError("Неизвестный статус в сообщении. {status} ({message})", check.Status, check.Message);
 
                 await Task.Delay(badRequestWaitTime);
+                continue;
+            }
+
+            if (status != lastStatus)
+            {
+                lastStatus = status;
+
+                if (status == Status.Online)
+                {
+                    _logger.LogInformation("Онлайн.");
+                    await NotifyAsync("Сервер онлайн!");
+
+                    await Task.Delay(preOfflineWaitTime);
+                }
+                else if (status == Status.Offline)
+                {
+                    _logger.LogInformation("Офлайн.");
+                    await NotifyAsync("Сервер офлайн!");
+
+                    await Task.Delay(preStartingWaitTime);
+                }
+                else if (status == Status.Starting)
+                {
+                    _logger.LogInformation("Запускается.");
+                    await NotifyAsync("Сервер запускается!");
+
+                    await Task.Delay(preOnlineWaitTime);
+                }
             }
         }
     }
